@@ -33,9 +33,10 @@ var extensionType = map[string]string {
 }
 
 const empty = ""
+const nl = "\n"
 
 func ProcessRequest(selector string) ([]byte) {
-  log.Printf("Processing request [%s]", selector, configuration.BaseDirectory())
+  log.Printf("Processing request [%s]", selector)
   if selector == empty {
     return HandleSelector(configuration.BaseDirectory())
   } else {
@@ -61,7 +62,7 @@ func ReadIndex(referenceDir string) ([]byte) {
       }
     }
 
-    return []byte(strings.Join(index, configuration.NewLineSequence()) + configuration.NewLineSequence())
+    return []byte(strings.Join(index, nl) + nl)
 
   }
 }
@@ -109,7 +110,7 @@ func indexEntry(title, referenceDir, selector string) (string) {
       } else {
         replacer := strings.NewReplacer(configuration.BaseDirectory(), empty)
         entrySelector := replacer.Replace(path.Join(referenceDir, selector))
-        if extensionType, e := extensionType[strings.ToLower(filepath.Ext(selector))]; e == true {
+        if extensionType, e := extensionType[strings.ToLower(filepath.Ext(selector))]; e != true {
           return gopherEntry(EBinary, title, entrySelector)
         } else {
           return gopherEntry(extensionType, title, entrySelector)
