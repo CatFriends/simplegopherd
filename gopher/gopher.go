@@ -13,15 +13,24 @@ import "github.com/catfriends/simplegopherd/configuration"
 
 
 const (
-  EText      = "0"
   EDirectory = "1"
   EError     = "3"
   EInfo      = "i"
-  EGIFImage  = "g"
-  EImage     = "I"
   EBinary    = "9"
-  ESound     = "s"
 )
+
+var extensionType = map[string]string {
+  ".txt": "0",
+  ".diz": "0",
+  ".nfo": "0",
+  ".gif": "g",
+  ".jpg": "I",
+  ".jpeg": "I",
+  ".png": "I",
+  ".mp3": "s",
+  ".wav": "s",
+  ".mid": "s",
+}
 
 const empty = ""
 
@@ -100,13 +109,10 @@ func indexEntry(title, referenceDir, selector string) (string) {
       } else {
         replacer := strings.NewReplacer(configuration.BaseDirectory(), empty)
         entrySelector := replacer.Replace(path.Join(referenceDir, selector))
-        log.Printf("Extension of [%s] is [%s]", entrySelector, strings.ToLower(filepath.Ext(selector)))
-        switch strings.ToLower(filepath.Ext(selector)) {
-        case ".txt": return gopherEntry(EText, title, entrySelector)
-        case ".gif": return gopherEntry(EGIFImage, title, entrySelector)
-        case ".jpg": return gopherEntry(EImage, title, entrySelector)
-        case ".mp3": return gopherEntry(ESound, title, entrySelector)
-        default:     return gopherEntry(EBinary, title, entrySelector)
+        if extensionType, e := extensionType[strings.ToLower(filepath.Ext(selector))]; e == true {
+          return gopherEntry(EBinary, title, entrySelector)
+        } else {
+          return gopherEntry(extensionType, title, entrySelector)
         }
       }
     }
