@@ -20,13 +20,13 @@ func main() {
     log.Fatal(e)
   }
 
-  if lsck, e := net.Listen("tcp", fmt.Sprintf("%s:%s", configuration.HostName(), configuration.PortNumber())); e != nil {
+  if lsck, e := net.Listen("tcp", configuration.Binding()); e != nil {
     log.Fatal(fmt.Sprintf("Can't start server: %s", e.Error()))
   } else {
-    log.Printf("Gopher is now listening to %s port %s", configuration.HostName(), configuration.PortNumber())
+    log.Printf("Gopher is now up at %s", configuration.Binding())
     for {
       if conn, e := lsck.Accept(); e != nil {
-        log.Printf("Unable to serve incomming connection!")
+        log.Printf("Can't serve connection: %s", e.Error())
       } else {
         log.Printf("Accepting client %s", conn.RemoteAddr().String())
         go HandleRequest(conn)
@@ -40,10 +40,9 @@ func HandleRequest(sck net.Conn) {
   defer sck.Close()
 
   if selector, e := bufio.NewReader(sck).ReadString('\n'); e != nil {
-    log.Printf("Bad selector %s", e.Error())
+    log.Printf("Can't get selector string: %s", e.Error())
   } else {
-    selector = strings.Trim(selector, "\n\r\t ")
-    sck.Write(gopher.ProcessRequest(selector))
+    sck.Write(gopher.ProcessRequest(strings.Trim(selector, "\n\r\t ")))
   }
 
 }
