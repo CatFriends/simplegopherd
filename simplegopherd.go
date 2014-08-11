@@ -1,15 +1,15 @@
 package main
 
 import (
-  "log"
-  "fmt"
-  "net"
   "bufio"
-  "strings"
   "flag"
+  "fmt"
+  "log"
+  "net"
+  "strings"
 
-  "./gopher"
   "./configuration"
+  "./gopher"
 )
 
 func main() {

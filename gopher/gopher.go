@@ -11,8 +11,6 @@ import "io/ioutil"
 
 import "../configuration"
 
-const IndexFileName = "index.csv"
-const NewLineSequence = "\n"
 
 const (
   EText      = "0"
@@ -38,7 +36,7 @@ func ProcessRequest(selector string) ([]byte) {
 
 func ReadIndex(referenceDir string) ([]byte) {
   log.Printf("Reading index of [%s]", referenceDir)
-  if f, e := os.Open(path.Join(referenceDir, IndexFileName)); e != nil {
+  if f, e := os.Open(path.Join(referenceDir, configuration.IndexFileName())); e != nil {
     return []byte(gopherError(e.Error()))
   } else {
     defer f.Close()
@@ -54,7 +52,7 @@ func ReadIndex(referenceDir string) ([]byte) {
       }
     }
 
-    return []byte(strings.Join(index, NewLineSequence) + NewLineSequence)
+    return []byte(strings.Join(index, configuration.NewLineSequence()) + configuration.NewLineSequence())
 
   }
 }

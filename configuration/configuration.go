@@ -9,6 +9,10 @@ type configurationDataType struct {
   }
   Site struct {
     BaseDirectory string
+    IndexFileName string
+  }
+  Gopher struct {
+    NewLineSequence string
   }
 }
 
@@ -18,6 +22,8 @@ func LoadFromFile(name string) (error) {
   return gcfg.ReadFileInto(&configurationData, name)
 }
 
-func BaseDirectory() (string) { return configurationData.Site.BaseDirectory }
-func HostName() (string)      { return configurationData.Network.HostName }
-func PortNumber() (string)    { return configurationData.Network.PortNumber }
+func HostName() (string)        { return configurationData.Network.HostName }
+func PortNumber() (string)      { return configurationData.Network.PortNumber }
+func BaseDirectory() (string)   { return configurationData.Site.BaseDirectory }
+func IndexFileName() (string)   { return configurationData.Site.IndexFileName }
+func NewLineSequence() (string) { return configurationData.Gopher.NewLineSequence }
