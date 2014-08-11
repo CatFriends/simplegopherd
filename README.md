@@ -33,9 +33,6 @@ PortNumber = 70              # port number
 [Site]
 BaseDirectory = C:/Temp      # root folder to serve
 IndexFileName = index.csv    # index file name
-
-[Gopher]
-NewLineSequence = \n\r       # new line format
 ```
 
 ### Preparing site
