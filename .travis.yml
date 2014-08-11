@@ -1,1 +1,9 @@
 language: go
+notifications:
+  email: false
+notifications:
+  irc:
+    channels:
+      - "irc.freenode.net#catfriends"
+    template:
+      - "Travis CI: %{repository_name} build %{result} after %{commit} from %{author} (%{build_url})"
