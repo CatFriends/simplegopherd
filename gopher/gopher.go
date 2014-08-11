@@ -9,7 +9,7 @@ import "encoding/csv"
 import "strings"
 import "io/ioutil"
 
-import "../configuration"
+import "github.com/catfriends/simplegopherd/configuration"
 
 
 const (

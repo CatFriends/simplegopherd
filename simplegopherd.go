@@ -8,8 +8,8 @@ import (
   "net"
   "strings"
 
-  "./configuration"
-  "./gopher"
+  "github.com/catfriends/simplegopherd/configuration"
+  "github.com/catfriends/simplegopherd/gopher"
 )
 
 func main() {
