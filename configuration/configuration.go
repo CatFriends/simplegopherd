@@ -1,6 +1,7 @@
 package configuration
 
 import "code.google.com/p/gcfg"
+import "fmt"
 
 type configurationDataType struct {
   Network struct {
