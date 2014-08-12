@@ -1,8 +1,10 @@
-## simplegopherd [![Build Status](https://travis-ci.org/CatFriends/simplegopherd.svg?branch=master)](https://travis-ci.org/CatFriends/simplegopherd)
+## simplegopherd
 
 **Gopher** protocol is designed for distributing documents over the Internet. It was developed in 1991 in University of Minnesota. Because of licensing fees the protocol did not get much use, and is almost forgotten nowadays and sounds like FIDO or BBS.
 
 Development of the server is some kind of tribute to Gopher, and a try to bring new life into this old good technology.
+
+[ ![Codeship Status for CatFriends/simplegopherd](https://www.codeship.io/projects/a2988dd0-0377-0132-82d0-4630af32249f/status?branch=master)](https://www.codeship.io/projects/30445)
 
 ## Installation and Usage
 This application uses [**gcfg** library][1] to handle `.ini` configuration files. You have to get it before making a build of the server:
@@ -68,7 +70,7 @@ Keep in mind these rules when writing `index.csv` files:
 After configuration steps is finished you can start your Gopher site using:
 
 ```
-simplegopherd <configuration.ini>
+simplegopherd -configuration=<configuration.ini>
 ```
 
   [1]: https://code.google.com/p/gcfg/
