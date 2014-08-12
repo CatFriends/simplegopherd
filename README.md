@@ -32,35 +32,35 @@ PortNumber = 70              # port number
 
 [Site]
 BaseDirectory = C:/Temp      # root folder to serve
-IndexFileName = index.csv    # index file name
+IndexFileName = index.cat    # index file name
 ```
 
 ### Preparing site
 
-Each and every directory from the Gopher site must contain `index.csv` file. It contains descriptions for files in that directory.
+Each and every directory from the Gopher site must contain `index.cat` file. It contains descriptions for files in that directory.
 
 For example, if your site has the following layout:
 
 ```
 + root
-|-- index.csv
+|-- index.cat
 |-- about.txt
 |-- cat.gif
 ```
 
-your `index.csv` might be like this:
+your `index.cat` should contain tab-delimited table and will look like this:
 
 ```
-"Welcome to Sample Gopher Server",""
-"",""
-"About us","about.txt"
-"Our Felix's photo","cat.gif"
+Welcome to Sample Gopher Server
+
+About us	about.txt
+Our Felix's photo	cat.gif
 ```
 
 Keep in mind these rules when writing `index.csv` files:
 
   - First column is **description** of item, a free text limited with 70 characters
-  - Second column is item **selector** and contains file name
+  - Second column is item **selector** and contains file name (optional)
   - If item have *empty* selector, it means that it is just an **information** item
 
 ### Running
