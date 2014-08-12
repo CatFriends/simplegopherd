@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	configFile = flag.String("config", "", "Configuration file name")
+	configFile = flag.String("config", "", "INI configuration file name")
 )
 
 func main() {
