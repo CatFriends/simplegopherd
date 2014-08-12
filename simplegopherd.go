@@ -25,18 +25,23 @@ func main() {
 		log.Fatal("You must specify config file name using -config=<file.ini>")
 	} else {
 		if e := configuration.LoadFromFile(*configFile); e != nil {
-			log.Fatal(fmt.Sprintf("Can't load configuration from %s: %s", *configFile, e.Error()))
+			log.Fatal(fmt.Sprintf("Can't load configuration: %s", e.Error()))
 		}
 	}
+
+	log.Printf("Using configuration file [%s]", *configFile)
 
 	// Create server instance
 
 	if lsck, e := net.Listen("tcp", configuration.Binding()); e != nil {
-		log.Fatal(fmt.Sprintf("Can't start: %s", e.Error()))
+		log.Fatal(fmt.Sprintf("Can't start server: %s", e.Error()))
 	} else {
+
+		log.Printf("Waiting for client connections...")
+
 		for {
 			if conn, e := lsck.Accept(); e != nil {
-				log.Printf("Can't serve client: %s", e.Error())
+				log.Printf("Can't handle incoming connection: %s", e.Error())
 			} else {
 				go HandleRequest(conn)
 			}

@@ -37,7 +37,7 @@ const nl = "\n"
 // Process Gopher request from the client.
 func ProcessRequest(selector string) []byte {
 	if selector == empty {
-		return HandleSelector(configuration.BaseDirectory())
+		return HandleSelector(empty)
 	} else {
 		return HandleSelector(selector)
 	}
@@ -54,6 +54,8 @@ func HandleSelector(selector string) []byte {
 		fsObject = path.Join(configuration.BaseDirectory(), selector)
 	}
 
+  log.Printf("FSO for selector [%s] is [%s]", selector, fsObject)
+
 	// Get information about the filesystem object
 	if stat, e := os.Stat(fsObject); e != nil {
 		return []byte(gopherError(e.Error()))
@@ -68,7 +70,11 @@ func HandleSelector(selector string) []byte {
 
 // Find and process Index file for specified directory.
 func ReadIndex(referenceDir string) ([]byte) {
-	if f, e := os.Open(path.Join(referenceDir, configuration.IndexFileName())); e != nil {
+  var indexFile = path.Join(referenceDir, configuration.IndexFileName())
+
+  log.Printf("Processing Index [%s]", indexFile)
+
+	if f, e := os.Open(indexFile); e != nil {
 		return []byte(gopherError(e.Error()))
 	} else {
 		defer f.Close()
@@ -80,7 +86,11 @@ func ReadIndex(referenceDir string) ([]byte) {
 			return []byte(gopherError(e.Error()))
 		} else {
 			for _, line := range lines {
-				index = append(index, indexEntry(line[0], referenceDir, line[1]))
+        entry := indexEntry(line[0], referenceDir, line[1])
+				index = append(index, entry)
+
+        log.Printf("  - %s", entry)
+
 			}
 		}
 
@@ -91,6 +101,8 @@ func ReadIndex(referenceDir string) ([]byte) {
 
 // Read file in binary mode.
 func ReadFile(name string) ([]byte) {
+  log.Printf("Reading file [%s] in binary mode", name)
+
 	if data, e := ioutil.ReadFile(name); e != nil {
 		return []byte(gopherError(e.Error()))
 	} else {
@@ -103,6 +115,7 @@ func gopherEntry(etype, title, url string) string {
 }
 
 func gopherError(reason string) string {
+  log.Printf("Error: %s", reason)
 	return gopherEntry(EError, reason, "")
 }
 
@@ -111,7 +124,6 @@ func indexEntry(title, referenceDir, selector string) string {
 		return gopherEntry(EInfo, title, empty)
 	} else {
 		if stat, e := os.Stat(path.Join(referenceDir, selector)); e != nil {
-			log.Printf("Error: %s", e.Error())
 			return gopherError(e.Error())
 		} else {
 			if stat.IsDir() == true {
