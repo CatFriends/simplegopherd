@@ -5,9 +5,10 @@ import "path"
 import "path/filepath"
 import "os"
 import "fmt"
-import "encoding/csv"
 import "strings"
 import "io/ioutil"
+import "bytes"
+import "bufio"
 
 import "github.com/catfriends/simplegopherd/configuration"
 
@@ -79,22 +80,18 @@ func ReadIndex(referenceDir string) ([]byte) {
 	} else {
 		defer f.Close()
 
-		index := make([]string, 0)
+		var index bytes.Buffer
 
-		reader := csv.NewReader(f)
-		if lines, e := reader.ReadAll(); e != nil {
-			return []byte(gopherError(e.Error()))
-		} else {
-			for _, line := range lines {
-        entry := indexEntry(line[0], referenceDir, line[1])
-				index = append(index, entry)
+    scanner := bufio.NewScanner(f);
+    for scanner.Scan() {
+    	title, selector := processIndexLine(scanner.Text())
+      entry := indexEntry(title, referenceDir, selector)
+      log.Printf("  - %s", entry)
+      index.WriteString(entry + nl)
+    }
 
-        log.Printf("  - %s", entry)
-
-			}
-		}
-
-		return []byte(strings.Join(index, nl) + nl)
+    index.WriteString(nl)
+		return index.Bytes()
 
 	}
 }
@@ -139,4 +136,17 @@ func indexEntry(title, referenceDir, selector string) string {
 			}
 		}
 	}
+}
+
+// Process single line from index file
+func processIndexLine(line string) (string, string) {
+  parts := strings.Split(line, "\t")
+  switch len(parts) {
+  case 0:
+  	return empty, empty
+  case 1:
+  	return parts[0], empty
+  default:
+  	return parts[0], parts[1]
+  }
 }
