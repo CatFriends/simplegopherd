@@ -52,11 +52,5 @@ func main() {
 
 func HandleRequest(sck net.Conn) {
 	defer sck.Close()
-
-	if selector, e := bufio.NewReader(sck).ReadString('\n'); e != nil {
-		log.Printf("Can't get selector string: %s", e.Error())
-	} else {
-		sck.Write(gopher.ProcessRequest(strings.Trim(selector, "\n\r\t ")))
-	}
-
+	gopher.ProcessRequest(sck)
 }

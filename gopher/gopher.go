@@ -36,19 +36,33 @@ const empty = ""
 const nl = "\n"
 
 // Process Gopher request from the client.
-func ProcessRequest(selector string) []byte {
-	if selector == empty {
-		return HandleSelector(empty)
+func ProcessRequest(sck net.Conn) {
+	if selector, e := bufio.NewReader(sck).ReadString('\n'); e != nil {
+		gopherError(e.Error(), sck)
 	} else {
-		return HandleSelector(selector)
+		HandleSelector(getSelector(sck), sck)
 	}
 }
 
 // Process selector given by request.
-func HandleSelector(selector string) []byte {
-	var fsObject string
+func HandleSelector(selector string, sck net.Conn) {
+	var fsObject = getFSObjectName(selector)
 
-	// Find name of the filesystem object to be processed
+	// Get information about the filesystem object
+	if info, e := os.Stat(fsObject); e != nil {
+		gopherError(e.Error(), sck)
+	} else {
+		if info.IsDir() == true {
+			return ReadIndex(fsObject)
+		} else {
+			ReadFile(fsObject, sck)
+		}
+	}
+}
+
+// Find name of the filesystem object to be processed.
+func getFSObjectName(selector string) (string)
+	var fsObject string
 	if selector == empty {
 		fsObject = configuration.BaseDirectory()
 	} else {
@@ -56,17 +70,7 @@ func HandleSelector(selector string) []byte {
 	}
 
   log.Printf("FSO for selector [%s] is [%s]", selector, fsObject)
-
-	// Get information about the filesystem object
-	if stat, e := os.Stat(fsObject); e != nil {
-		return []byte(gopherError(e.Error()))
-	} else {
-		if stat.IsDir() == true {
-			return ReadIndex(fsObject)
-		} else {
-			return ReadFile(fsObject)
-		}
-	}
+  return fsObject
 }
 
 // Find and process Index file for specified directory.
@@ -97,13 +101,12 @@ func ReadIndex(referenceDir string) ([]byte) {
 }
 
 // Read file in binary mode.
-func ReadFile(name string) ([]byte) {
+func ReadFile(name string, sck net.Conn) {
   log.Printf("Reading file [%s] in binary mode", name)
-
 	if data, e := ioutil.ReadFile(name); e != nil {
-		return []byte(gopherError(e.Error()))
+		gopherError(e.Error(), sck)
 	} else {
-		return data[:]
+		sck.Write(data[:])
 	}
 }
 
@@ -111,9 +114,9 @@ func gopherEntry(etype, title, url string) string {
 	return fmt.Sprintf("%s%s\t%s\t%s\t%s", etype, title, url, configuration.HostName(), configuration.PortNumber())
 }
 
-func gopherError(reason string) string {
+func gopherError(reason string, socket net.Conn) {
   log.Printf("Error: %s", reason)
-	return gopherEntry(EError, reason, "")
+	socket.Write([]byte(gopherEntry(EError, reason, empty)))
 }
 
 func indexEntry(title, referenceDir, selector string) string {

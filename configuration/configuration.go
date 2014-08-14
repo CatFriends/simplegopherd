@@ -12,6 +12,9 @@ type configurationDataType struct {
 		BaseDirectory string
 		IndexFileName string
 	}
+	Gopher struct {
+		BufferSize int
+	}
 }
 
 var configurationData configurationDataType
@@ -27,3 +30,4 @@ func Binding() string {
 }
 func BaseDirectory() string { return configurationData.Site.BaseDirectory }
 func IndexFileName() string { return configurationData.Site.IndexFileName }
+func BufferSize() int { return configurationData.Gopher.BufferSize }
