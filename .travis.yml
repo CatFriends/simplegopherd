@@ -4,6 +4,4 @@ go:
 
 notifications:
   email:
-    - one@example.com
-    - other@example.com
-  irc: "chat.freenode.net#catfriends"
+    - nikolay.kim@outlook.com
