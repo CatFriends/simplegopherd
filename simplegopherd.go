@@ -2,11 +2,9 @@ package main
 
 import (
   "bufio"
-  "encoding/json"
   "flag"
   "fmt"
   "io"
-  "io/ioutil"
   "log"
   "net"
   "os"
@@ -33,19 +31,16 @@ var extensions = map[string]string{
   ".mid": "s",
 }
 
-var cfg struct {
-  Host      string
-  Port      int
-  Directory string
-  Binding   string
-}
+var host *string = flag.String("host", "127.0.0.1", "Bind to specified address")
+var port *string = flag.String("port", "70", "Bind to specified port")
+var base *string = flag.String("base", ".", "Directory to serve files from")
 
 func main() {
-  loadConfiguration()
+  flag.Parse()
 
-  log.Printf("Starting Gopher at %s using %s", cfg.Binding, cfg.Directory)
+  log.Printf("Starting Gopher at %s:%s using %s", *host, *port, *base)
 
-  if listener, e := net.Listen("tcp", cfg.Binding); e != nil {
+  if listener, e := net.Listen("tcp", fmt.Sprintf("%s:%s", *host, *port)); e != nil {
     log.Fatalf("Can't create listener: %s", e.Error())
   } else {
     log.Printf("Waiting for client connections...")
@@ -60,21 +55,6 @@ func main() {
 
 }
 
-func loadConfiguration() {
-  var fileName = flag.String("config", "sample.json", "Configuration file name")
-  flag.Parse()
-
-  if data, e := ioutil.ReadFile(*fileName); e != nil {
-    log.Fatalf("Can't load configuration from file %s: %s!", *fileName, e.Error())
-  } else {
-    json.Unmarshal(data, &cfg)
-
-    cfg.Binding = fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
-
-  }
-
-}
-
 func gopher(sck net.Conn) {
   defer sck.Close()
 
@@ -83,7 +63,7 @@ func gopher(sck net.Conn) {
   } else {
     selector = strings.Trim(selector, "\n\r\t ")
 
-    fso := path.Join(cfg.Directory, selector)
+    fso := path.Join(*base, selector)
 
     if stat, e := os.Stat(fso); e != nil {
       log.Printf("Can't get stats of %s: %s", fso, e.Error())
@@ -167,5 +147,5 @@ func gopher_error(message string, sck net.Conn) {
 }
 
 func gopher_entry(class, text, selector string, sck net.Conn) {
-  sck.Write([]byte(fmt.Sprintf("%s%s\t%s\t%s\t%d\n", class, text, selector, cfg.Host, cfg.Port)))
+  sck.Write([]byte(fmt.Sprintf("%s%s\t%s\t%s\t%d\n", class, text, selector, host, port)))
 }
