@@ -9,6 +9,7 @@ import (
   "net"
   "os"
   "path"
+  "path/filepath"
   "strings"
 )
 
@@ -31,12 +32,13 @@ var extensions = map[string]string{
   ".mid": "s",
 }
 
-var host *string = flag.String("host", "127.0.0.1", "Bind to specified address")
-var port *string = flag.String("port", "70", "Bind to specified port")
-var base *string = flag.String("base", ".", "Directory to serve files from")
+var host *string = flag.String("host", "127.0.0.1", "Host name or IP address to listen")
+var port *string = flag.String("port", "70",        "Port number for incoming connections, usually 70")
+var base *string = flag.String("base", ".",         "Directory to be published")
 
 func main() {
   flag.Parse()
+  *base, _ = filepath.Abs(*base)
 
   log.Printf("Starting Gopher at %s:%s using %s", *host, *port, *base)
 
@@ -58,27 +60,35 @@ func main() {
 func gopher(sck net.Conn) {
   defer sck.Close()
 
-  if selector, e := bufio.NewReader(sck).ReadString('\n'); e != nil {
-    log.Printf("Can't read selector string: %s", e.Error())
+  raw := make([]byte, 255)
+  
+  if _, e := sck.Read(raw); e != nil {
+    log.Printf("Can't read selector: %s", e.Error())
   } else {
-    selector = strings.Trim(selector, "\n\r\t ")
+    selector := strings.Trim(string(raw), "\n\r\x00 ")
+    request, _ := filepath.Abs(path.Join(*base, selector))
 
-    fso := path.Join(*base, selector)
+    if strings.Contains(request, "\t") == false {
+      
+      // Simple file request
 
-    if stat, e := os.Stat(fso); e != nil {
-      log.Printf("Can't get stats of %s: %s", fso, e.Error())
-    } else {
-
-      if stat.IsDir() == true {
-        gopher_index(path.Join(fso, IndexFN), sck)
+      if strings.HasPrefix(request, *base) == false {  // Check if requested object is inside base directory
+        // Access violation
       } else {
-        if strings.HasSuffix(fso, IndexFN) {
-          gopher_index(fso, sck)
+        // Ok, we can serve
+        if stat, e := os.Stat(request); e != nil {
+          log.Printf("Can't get attributes of %s: %s", request, e.Error())
         } else {
-          gopher_send(fso, sck)
+          if stat.IsDir() {
+            // Serve Index
+          } else {
+            gopher_send(request, sck)
+          }
         }
       }
 
+    } else {
+      // Search query
     }
 
   }
